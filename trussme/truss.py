@@ -13,6 +13,9 @@ import warnings
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.cm as cm
+from matplotlib.font_manager import FontProperties
+from mpl_toolkits.mplot3d import proj3d
+
 
 
 class Truss(object):
@@ -292,13 +295,31 @@ class Truss(object):
     #==========================================================================
 
     def plot(self):
-        fig = plt.figure()
+
+        # The following is a patch for mplot3d to enable orthogonal projection
+        # http://stackoverflow.com/questions/23840756/how-to-disable-perspective-in-mplot3d
+        def orthogonal_proj(zfront, zback):
+            a = (zfront+zback)/(zfront-zback)
+            b = -2*(zfront*zback)/(zfront-zback)
+            return np.array([[1,0,0,0],
+                                [0,1,0,0],
+                                [0,0,a,b],
+                                [0,0,-0.000001,zback]])
+        proj3d.persp_transformation = orthogonal_proj
+        # End of patch
+
+        # figsize uses inches, use A4 size here
+        fig = plt.figure(figsize=np.array([297, 210]) / 25.4)
+
         ax = fig.add_subplot(111,
                              projection='3d',
                              xlabel='x',
                              ylabel='y',
                              zlabel='z')
+
         ax.view_init(azim=-90, elev=90)
+        ax.set_aspect('auto')
+        fig.tight_layout()
 
         # Plot members
         for m in self.members:
@@ -310,10 +331,9 @@ class Truss(object):
             else:
                 clr = 'r'
             if m.force > 0:
-                lst = '--'
-            else:
                 lst = '-'
-            # Hm.append(plot([p1[0], p2[0]], [p1[1], p2[1]],
+            else:
+                lst = '--'
 
             ax.plot(xs=[m.end_a[0], m.end_b[0]],
                     ys=[m.end_a[1], m.end_b[1]],
@@ -325,43 +345,25 @@ class Truss(object):
 
             plt.axis('equal')
 
+        x_range = abs(ax.get_xlim()[1]-ax.get_xlim()[0])
+        y_range = abs(ax.get_ylim()[1]-ax.get_ylim()[0])
+        label_offs = y_range*0.05
+
         # Plot joints
-        i = 0
+        i_load = 0
+        i_jnt = 0
         for j in self.joints:
             x = j.coordinates[0]
             y = j.coordinates[1]
             z = j.coordinates[2]
 
-            # Plot loads
-            if np.count_nonzero(j.loads):  # If not all elements of the load array are zero
-                i += 1
-                scatter_label = "load " + str(i)
-                load_desc = "X: " + str(j.loads[0]) + " \n" + \
-                            "Y: " + str(j.loads[1]) + " \n" + \
-                            "Z: " + str(j.loads[2])
-                clr = np.random.rand(3,)
-                ax.scatter(xs=x,
-                           ys=y,
-                           zs=z,
-                           zdir='z',
-                           color=clr,
-                           marker='*',
-                           s=50,
-                           label=scatter_label+"\n"+load_desc)
-
-                ax.text(x,
-                        y,
-                        z,
-                        '%s' % (scatter_label),
-                        size=10,
-                        zorder=999,
-                        color=clr)
+            i_jnt += 1
 
             # Plot supports
             dof = len(j.translation)
-            scatter_label = "X: " + str(j.translation[0]) + " \n" + \
-                            "Y: " + str(j.translation[1]) + " \n" + \
-                            "Z: " + str(j.translation[2])
+            scatter_label = "j" + str(i_jnt)
+            name = "joint " + str(i_jnt)
+            trans_desc = ' '.join(''.join(str(cell) for cell in row) for row in j.translation)
             if np.count_nonzero(j.translation) == 0:  # Free joint
                 ax.scatter(xs=x,
                            ys=y,
@@ -369,7 +371,7 @@ class Truss(object):
                            zdir='z',
                            color='k',
                            marker='o',
-                           s=50)
+                           zorder=999)
 
             elif np.count_nonzero(j.translation) == dof:  # Full support
                 ax.scatter(xs=x,
@@ -378,8 +380,8 @@ class Truss(object):
                            zdir='z',
                            color='k',
                            marker='s',
-                           s=50,
-                           label="")
+                           zorder=99,
+                           label=name+"\n"+trans_desc)
 
             else:  # Partial support
                 ax.scatter(xs=x,
@@ -388,17 +390,45 @@ class Truss(object):
                            zdir='z',
                            color='k',
                            marker='^',
-                           s=50,
-                           label="")
+                           zorder=999,
+                           label=name+"\n"+trans_desc)
 
             ax.text(x,
                     y,
                     z,
-                    '%s' % (scatter_label),
-                    size=8,
-                    zorder=999,
+                    '%s' % ('\n'+scatter_label+'\n'),
+                    linespacing=label_offs,
+                    va='top',
                     color='k')
 
-            # Plot legend
-            ax.legend(loc='best',
-                      ncol=3)
+            # Plot loads
+            if np.count_nonzero(j.loads):  # If not all elements of the load array are zero
+                i_load += 1
+                scatter_label = "l" + str(i_load)
+                name = "load " + str(i_load)
+                load_desc = '/'.join(''.join(str(cell) for cell in row) for row in j.loads)
+                clr = np.random.rand(3,)
+                ax.scatter(xs=x,
+                           ys=y,
+                           zs=z,
+                           zdir='z',
+                           color=clr,
+                           marker='*',
+                           zorder=999,
+                           label=name+"\n"+load_desc)
+
+                ax.text(x,
+                        y,
+                        z,
+                        '%s' % ('\n'+scatter_label+'\n'),
+                        linespacing=label_offs,
+                        va='bottom',
+                        color=clr)
+
+        # Plot legend
+        fontP = FontProperties()
+        fontP.set_size('small')
+
+        ax.legend(loc='best',
+                  ncol=3,
+                  prop=fontP)

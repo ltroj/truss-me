@@ -16,4 +16,4 @@ M   0   1   zero_mat pipe    r=0.02    t=0.002
 
 # This block defines loads. The order of the columns is:
 # L joint, x-load, y-load, z-load
-L   2   0   -1000  0
+L   2   0   -1  0
