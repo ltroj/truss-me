@@ -1,4 +1,3 @@
-import numpy
 import unittest
 import os
 import filecmp
@@ -12,18 +11,18 @@ class TestSequenceFunctions(unittest.TestCase):
     def test_build_methods(self):
         # Build truss from scratch
         t1 = truss.Truss()
-        t1.add_support(numpy.array([0.0, 0.0, 0.0]), d=2)
-        t1.add_joint(numpy.array([1.0, 0.0, 0.0]), d=2)
-        t1.add_joint(numpy.array([2.0, 0.0, 0.0]), d=2)
-        t1.add_joint(numpy.array([3.0, 0.0, 0.0]), d=2)
-        t1.add_joint(numpy.array([4.0, 0.0, 0.0]), d=2)
-        t1.add_support(numpy.array([5.0, 0.0, 0.0]), d=2)
+        t1.add_support(np.array([0.0, 0.0, 0.0]), d=2)
+        t1.add_joint(np.array([1.0, 0.0, 0.0]), d=2)
+        t1.add_joint(np.array([2.0, 0.0, 0.0]), d=2)
+        t1.add_joint(np.array([3.0, 0.0, 0.0]), d=2)
+        t1.add_joint(np.array([4.0, 0.0, 0.0]), d=2)
+        t1.add_support(np.array([5.0, 0.0, 0.0]), d=2)
 
-        t1.add_joint(numpy.array([0.5, 1.0, 0.0]), d=2)
-        t1.add_joint(numpy.array([1.5, 1.0, 0.0]), d=2)
-        t1.add_joint(numpy.array([2.5, 1.0, 0.0]), d=2)
-        t1.add_joint(numpy.array([3.5, 1.0, 0.0]), d=2)
-        t1.add_joint(numpy.array([4.5, 1.0, 0.0]), d=2)
+        t1.add_joint(np.array([0.5, 1.0, 0.0]), d=2)
+        t1.add_joint(np.array([1.5, 1.0, 0.0]), d=2)
+        t1.add_joint(np.array([2.5, 1.0, 0.0]), d=2)
+        t1.add_joint(np.array([3.5, 1.0, 0.0]), d=2)
+        t1.add_joint(np.array([4.5, 1.0, 0.0]), d=2)
 
         t1.joints[7].loads[1] = -20000
         t1.joints[8].loads[1] = -20000

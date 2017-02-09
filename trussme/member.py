@@ -1,4 +1,4 @@
-import numpy
+import numpy as np
 import warnings
 from trussme.physical_properties import materials, valid_member_name
 
@@ -148,9 +148,9 @@ class Member(object):
 
     def calc_moi(self):
         if self.shape == "pipe":
-            self.I = (numpy.pi/4.)*(self.r**4 - (self.r - 2*self.t)**4)
+            self.I = (np.pi/4.)*(self.r**4 - (self.r - 2*self.t)**4)
         elif self.shape == "bar":
-            self.I = (numpy.pi/4.)*self.r**4
+            self.I = (np.pi/4.)*self.r**4
         elif self.shape == "square":
             if self.h > self.w:
                 self.I = (1./12.)*self.w*self.h**3
@@ -166,9 +166,9 @@ class Member(object):
 
     def calc_area(self):
         if self.shape == "pipe":
-            self.area = numpy.pi*(self.r**2 - (self.r-self.t)**2)
+            self.area = np.pi*(self.r**2 - (self.r-self.t)**2)
         elif self.shape == "bar":
-            self.area = numpy.pi*self.r**2
+            self.area = np.pi*self.r**2
         elif self.shape == "box":
             self.area = self.w*self.h - (self.h - 2*self.t)*(self.w - 2*self.t)
         elif self.shape == "square":
@@ -180,13 +180,13 @@ class Member(object):
     def calc_geometry(self):
         self.end_a = self.joints[0].coordinates
         self.end_b = self.joints[1].coordinates
-        self.length = numpy.linalg.norm(self.end_a - self.end_b)
+        self.length = np.linalg.norm(self.end_a - self.end_b)
         self.mass = self.length*self.LW
 
     def set_force(self, the_force):
         self.force = the_force
         self.fos_yielding = self.Fy/abs(self.force/self.area)
-        self.fos_buckling = -((numpy.pi**2)*self.elastic_modulus*self.I
+        self.fos_buckling = -((np.pi**2)*self.elastic_modulus*self.I
                              /(self.length**2))/self.force
 
     def update_joints(self, joint_a, joint_b):

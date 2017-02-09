@@ -1,5 +1,5 @@
-import numpy
-import pandas
+import numpy as np
+import pandas as pd
 import trussme.physical_properties as pp
 
 
@@ -95,7 +95,7 @@ def print_instantiation_information(f, the_truss, verb=False):
                      str(bool(j.translation[1][0])),
                      str(bool(j.translation[2][0]))])
 
-    pw(f, pandas.DataFrame(data,
+    pw(f, pd.DataFrame(data,
                            index=rows,
                            columns=["X",
                                     "Y",
@@ -120,7 +120,7 @@ def print_instantiation_information(f, the_truss, verb=False):
                      m.r,
                      m.t])
 
-    pw(f, pandas.DataFrame(data,
+    pw(f, pd.DataFrame(data,
                            index=rows,
                            columns=["Joint-A",
                                     "Joint-B",
@@ -133,7 +133,7 @@ def print_instantiation_information(f, the_truss, verb=False):
         .to_string(justify="left"), v=verb)
 
     # Print material list
-    unique_materials = numpy.unique([m.material for m in the_truss.members])
+    unique_materials = np.unique([m.material for m in the_truss.members])
     pw(f, "\n--- MATERIALS ---", v=verb)
     data = []
     rows = []
@@ -144,7 +144,7 @@ def print_instantiation_information(f, the_truss, verb=False):
             str(pp.materials[mat]["E"]/pow(10, 9)),
             str(pp.materials[mat]["Fy"]/pow(10, 6))])
 
-    pw(f, pandas.DataFrame(data,
+    pw(f, pd.DataFrame(data,
                            index=rows,
                            columns=["Density(kg/m3)",
                                     "Elastic Modulus(GPa)",
@@ -169,7 +169,7 @@ def print_stress_analysis(f, the_truss, verb=False):
                                     in j.members]))/pow(10, 3), '.2f'),
                      str(j.loads[2][0]/pow(10, 3))])
 
-    pw(f, pandas.DataFrame(data,
+    pw(f, pd.DataFrame(data,
                            index=rows,
                            columns=["X-Load",
                                     "Y-Load",
@@ -189,7 +189,7 @@ def print_stress_analysis(f, the_truss, verb=False):
                      format(j.reactions[2][0]/pow(10, 3), '.2f')
                      if j.translation[2][0] != 0.0 else "N/A"])
 
-    pw(f, pandas.DataFrame(data,
+    pw(f, pd.DataFrame(data,
                            index=rows,
                            columns=["X-Reaction(kN)",
                                     "Y-Reaction(kN)",
@@ -208,7 +208,7 @@ def print_stress_analysis(f, the_truss, verb=False):
                      m.fos_yielding,
                      m.fos_buckling if m.fos_buckling > 0 else "N/A"])
 
-    pw(f, pandas.DataFrame(data,
+    pw(f, pd.DataFrame(data,
                            index=rows,
                            columns=["Area(m2)",
                                     "Moment-of-Inertia(m4)",
@@ -230,7 +230,7 @@ def print_stress_analysis(f, the_truss, verb=False):
                      format(j.deflections[2][0]*pow(10, 3), '.5f')
                      if j.translation[2][0] == 0.0 else "N/A"])
 
-    pw(f, pandas.DataFrame(data,
+    pw(f, pd.DataFrame(data,
                            index=rows,
                            columns=["X-Defl.(mm)",
                                     "Y-Defl.(mm)",
@@ -247,7 +247,7 @@ def print_recommendations(f, the_truss, verb=False):
     if the_truss.goals["max_mass"] is not -1:
         tm = the_truss.goals["max_mass"]
     else:
-        tm = numpy.inf
+        tm = np.inf
 
     for m in the_truss.members:
         if the_truss.goals["min_fos_yielding"] is not -1:
@@ -299,9 +299,9 @@ def print_recommendations(f, the_truss, verb=False):
         if the_truss.goals["max_deflection"] is not -1:
             td = the_truss.goals["max_deflection"]
         else:
-            td = numpy.inf
+            td = np.inf
 
-        if numpy.linalg.norm(j.deflections) > td:
+        if np.linalg.norm(j.deflections) > td:
             pw(f, "\t- Joint_"+'{0:02d}'.format(j.idx)+" is deflecting "
                   "excessively. Try increasing the cross-sectional area of "
                   "adjacent members. These include:", v=verb)

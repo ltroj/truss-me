@@ -380,7 +380,7 @@ class Truss(object):
                            marker='s',
                            s=50,
                            label="")
-                
+
             else:  # Partial support
                 ax.scatter(xs=x,
                            ys=y,
@@ -390,7 +390,7 @@ class Truss(object):
                            marker='^',
                            s=50,
                            label="")
-            
+
             ax.text(x,
                     y,
                     z,
@@ -402,48 +402,3 @@ class Truss(object):
             # Plot legend
             ax.legend(loc='best',
                       ncol=3)
-
-#==============================================================================
-#     def plot_truss(self, FOS, F):
-#         # Collect some information
-#         M = len(self["Con"].T)
-#         N = len(self["Coord"].T)
-#
-#         Hm = []
-#         # Plot every member
-#         for i in range(M):
-#             p1 = self["Coord"][:, self["Con"][0, i]]
-#             p2 = self["Coord"][:, self["Con"][1, i]]
-#             if FOS[i] > 1:
-#                 color = 'g'
-#             else:
-#                 color = 'r'
-#             if F[i] > 0:
-#                 lst = '--'
-#             else:
-#                 lst = '-'
-#             Hm.append(plot([p1[0], p2[0]], [p1[1], p2[1]], color, linewidth=truss["SIZES"][i]+1, linestyle = lst))
-#             axis('equal')
-#
-#         # Plot supports
-#         Hs = []
-#         Hs.append(plot(self["Coord"][0, 0], self["Coord"][1, 0], 'ks', ms=15))
-#         Hs.append(plot(self["Coord"][0, 2], self["Coord"][1, 2], 'ko', ms=15))
-#         Hs.append(plot(self["Coord"][0, 4], self["Coord"][1, 4], 'ks', ms=15))
-#
-#         # Plot loads
-#         Hl = []
-#         Hl.append(plot(self["Coord"][0, 1], self["Coord"][1, 1], 'ko', ms=10))
-#         Hl.append(arrow(self["Coord"][0, 1], self["Coord"][1, 1] + 2.0, 0.0, -1.5,
-#                         fc="m", ec="m", head_width=0.3, head_length=0.6, width=0.1, zorder=3))
-#         Hl.append(plot(self["Coord"][0, 3], self["Coord"][1, 3], 'ko', ms=10))
-#         Hl.append(arrow(self["Coord"][0, 3], self["Coord"][1, 3] + 2.0, 0.0, -1.5,
-#                         fc="m", ec="m", head_width=0.3, head_length=0.6, width=0.1, zorder=3))
-#
-#         # Plot every joint
-#         Hj = []
-#         for i in range(N-5):
-#             Hj.append(plot(self["Coord"][0, i + 5], self["Coord"][1, i + 5], 'ko', ms=10))
-#
-#         return Hm, Hj, Hl, Hs
-#==============================================================================
