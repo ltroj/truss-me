@@ -1,4 +1,6 @@
-import numpy
+# -*- coding: utf-8 -*-
+
+import numpy as np
 from trussme import joint
 from trussme import member
 from trussme import report
@@ -7,6 +9,10 @@ from trussme.physical_properties import g
 import time
 import os
 import warnings
+
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import matplotlib.cm as cm
 
 
 class Truss(object):
@@ -43,9 +49,9 @@ class Truss(object):
                 for idx, line in enumerate(f):
                     if line[0] is "J":
                         info = line.split()[1:]
-                        self.add_joint(numpy.array(
+                        self.add_joint(np.array(
                             [float(x) for x in info[:3]]))
-                        self.joints[-1].translation = numpy.array(
+                        self.joints[-1].translation = np.array(
                             [[int(x)] for x in info[3:]])
                     elif line[0] is "M":
                         info = line.split()[1:]
@@ -136,8 +142,8 @@ class Truss(object):
             coordinates.append(j.coordinates)
 
         # Build Re
-        reactions = numpy.zeros([3, self.number_of_joints])
-        loads = numpy.zeros([3, self.number_of_joints])
+        reactions = np.zeros([3, self.number_of_joints])
+        loads = np.zeros([3, self.number_of_joints])
         for i in range(len(self.joints)):
             reactions[0, i] = self.joints[i].translation[0]
             reactions[1, i] = self.joints[i].translation[1]
@@ -157,10 +163,10 @@ class Truss(object):
             connections.append([j.idx for j in m.joints])
 
         # Make everything an array
-        area = numpy.array(area)
-        elastic_modulus = numpy.array(elastic_modulus)
-        coordinates = numpy.array(coordinates).T
-        connections = numpy.array(connections).T
+        area = np.array(area)
+        elastic_modulus = np.array(elastic_modulus)
+        coordinates = np.array(coordinates).T
+        connections = np.array(connections).T
 
         # Pull everything into a dict
         truss_info = {"elastic_modulus": elastic_modulus,
@@ -253,7 +259,7 @@ class Truss(object):
                         + str(j.translation[0, 0]) + "\t"
                         + str(j.translation[1, 0]) + "\t"
                         + str(j.translation[2, 0]) + "\n")
-                if numpy.sum(j.loads) != 0:
+                if np.sum(j.loads) != 0:
                     load_string += "L" + "\t"
                     load_string += str(j.idx) + "\t"
                     load_string += str(j.loads[0, 0]) + "\t"
@@ -280,3 +286,164 @@ class Truss(object):
 
             # Do the loads
             f.write(load_string)
+
+    #==========================================================================
+    # Achtung, ab hier auf eigene Faust!
+    #==========================================================================
+
+    def plot(self):
+        fig = plt.figure()
+        ax = fig.add_subplot(111,
+                             projection='3d',
+                             xlabel='x',
+                             ylabel='y',
+                             zlabel='z')
+        ax.view_init(azim=-90, elev=90)
+
+        # Plot members
+        for m in self.members:
+
+            fos = min(m.fos_buckling, m.fos_yielding)
+
+            if fos > 1:
+                clr = 'g'
+            else:
+                clr = 'r'
+            if m.force > 0:
+                lst = '--'
+            else:
+                lst = '-'
+            # Hm.append(plot([p1[0], p2[0]], [p1[1], p2[1]],
+
+            ax.plot(xs=[m.end_a[0], m.end_b[0]],
+                    ys=[m.end_a[1], m.end_b[1]],
+                    zs=[m.end_a[2], m.end_b[2]],
+                    zdir='z',
+                    color=clr,
+                    linewidth=2,  # To Do: Abhängig von Anzahl machen
+                    linestyle=lst)
+
+            plt.axis('equal')
+
+        # Plot joints
+        i = 0
+        for j in self.joints:
+            x = j.coordinates[0]
+            y = j.coordinates[1]
+            z = j.coordinates[2]
+
+            # Plot loads
+            if np.count_nonzero(j.loads):  # If not all elements of the load array are zero
+                i += 1
+                scatter_label = "load " + str(i)
+                load_desc = "X: " + str(j.loads[0]) + " \n" + \
+                            "Y: " + str(j.loads[1]) + " \n" + \
+                            "Z: " + str(j.loads[2])
+                clr = np.random.rand(3,)
+                ax.scatter(xs=x,
+                           ys=y,
+                           zs=z,
+                           zdir='z',
+                           color=clr,
+                           marker='*',
+                           s=50,
+                           label=scatter_label+"\n"+load_desc)
+
+                ax.text(x,
+                        y,
+                        z,
+                        '%s' % (scatter_label),
+                        size=10,
+                        zorder=999,
+                        color=clr)
+
+            # Plot supports
+            dof = len(j.translation)
+            scatter_label = "X: " + str(j.translation[0]) + " \n" + \
+                            "Y: " + str(j.translation[1]) + " \n" + \
+                            "Z: " + str(j.translation[2])
+            if np.count_nonzero(j.translation) == 0:  # Free joint
+                ax.scatter(xs=x,
+                           ys=y,
+                           zs=z,
+                           zdir='z',
+                           color='k',
+                           marker='o',
+                           s=50)
+
+            elif np.count_nonzero(j.translation) == dof:  # Full support
+                ax.scatter(xs=x,
+                           ys=y,
+                           zs=z,
+                           zdir='z',
+                           color='k',
+                           marker='s',
+                           s=50,
+                           label="")
+                
+            else:  # Partial support
+                ax.scatter(xs=x,
+                           ys=y,
+                           zs=z,
+                           zdir='z',
+                           color='k',
+                           marker='^',
+                           s=50,
+                           label="")
+            
+            ax.text(x,
+                    y,
+                    z,
+                    '%s' % (scatter_label),
+                    size=8,
+                    zorder=999,
+                    color='k')
+
+            # Plot legend
+            ax.legend(loc='best',
+                      ncol=3)
+
+#==============================================================================
+#     def plot_truss(self, FOS, F):
+#         # Collect some information
+#         M = len(self["Con"].T)
+#         N = len(self["Coord"].T)
+#
+#         Hm = []
+#         # Plot every member
+#         for i in range(M):
+#             p1 = self["Coord"][:, self["Con"][0, i]]
+#             p2 = self["Coord"][:, self["Con"][1, i]]
+#             if FOS[i] > 1:
+#                 color = 'g'
+#             else:
+#                 color = 'r'
+#             if F[i] > 0:
+#                 lst = '--'
+#             else:
+#                 lst = '-'
+#             Hm.append(plot([p1[0], p2[0]], [p1[1], p2[1]], color, linewidth=truss["SIZES"][i]+1, linestyle = lst))
+#             axis('equal')
+#
+#         # Plot supports
+#         Hs = []
+#         Hs.append(plot(self["Coord"][0, 0], self["Coord"][1, 0], 'ks', ms=15))
+#         Hs.append(plot(self["Coord"][0, 2], self["Coord"][1, 2], 'ko', ms=15))
+#         Hs.append(plot(self["Coord"][0, 4], self["Coord"][1, 4], 'ks', ms=15))
+#
+#         # Plot loads
+#         Hl = []
+#         Hl.append(plot(self["Coord"][0, 1], self["Coord"][1, 1], 'ko', ms=10))
+#         Hl.append(arrow(self["Coord"][0, 1], self["Coord"][1, 1] + 2.0, 0.0, -1.5,
+#                         fc="m", ec="m", head_width=0.3, head_length=0.6, width=0.1, zorder=3))
+#         Hl.append(plot(self["Coord"][0, 3], self["Coord"][1, 3], 'ko', ms=10))
+#         Hl.append(arrow(self["Coord"][0, 3], self["Coord"][1, 3] + 2.0, 0.0, -1.5,
+#                         fc="m", ec="m", head_width=0.3, head_length=0.6, width=0.1, zorder=3))
+#
+#         # Plot every joint
+#         Hj = []
+#         for i in range(N-5):
+#             Hj.append(plot(self["Coord"][0, i + 5], self["Coord"][1, i + 5], 'ko', ms=10))
+#
+#         return Hm, Hj, Hl, Hs
+#==============================================================================
