@@ -1,3 +1,8 @@
 .idea/*
 tests/report*
 tests/asdf.trs
+.spyproject/codestyle.ini
+*.ini
+frameWorker.py
+report_T_E_S_T.txt
+*.pyc

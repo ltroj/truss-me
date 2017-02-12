@@ -9,7 +9,7 @@ def print_summary(f, the_truss, verb=False):
     pw(f, "=============================", v=verb)
     pw(f, "\t- The truss has a mass of "
           + format(the_truss.mass, '.2f')
-          + " kg, and a total factor of safety of "
+          + " and a total factor of safety of "
           + format(the_truss.fos_total, '.2f')
           + ". ", v=verb)
     pw(f, "\t- The limit state is " + the_truss.limit_state + ".", v=verb)
@@ -126,10 +126,10 @@ def print_instantiation_information(f, the_truss, verb=False):
                                     "Joint-B",
                                     "Material",
                                     "Shape",
-                                    "Height(m)",
-                                    "Width(m)",
-                                    "Radius(m)",
-                                    "Thickness(m)"])
+                                    "Height",
+                                    "Width",
+                                    "Radius",
+                                    "Thickness"])
         .to_string(justify="left"), v=verb)
 
     # Print material list
@@ -141,14 +141,14 @@ def print_instantiation_information(f, the_truss, verb=False):
         rows.append(mat)
         data.append([
             str(pp.materials[mat]["rho"]),
-            str(pp.materials[mat]["E"]/pow(10, 9)),
-            str(pp.materials[mat]["Fy"]/pow(10, 6))])
+            str(pp.materials[mat]["E"]),
+            str(pp.materials[mat]["Fy"])])
 
     pw(f, pd.DataFrame(data,
                            index=rows,
-                           columns=["Density(kg/m3)",
-                                    "Elastic Modulus(GPa)",
-                                    "Yield Strength(MPa)"])
+                           columns=["Density",
+                                    "Elastic Modulus",
+                                    "Yield Strength"])
         .to_string(justify="left"), v=verb)
 
 
@@ -163,11 +163,11 @@ def print_stress_analysis(f, the_truss, verb=False):
     rows = []
     for j in the_truss.joints:
         rows.append("Joint_"+"{0:02d}".format(j.idx))
-        data.append([str(j.loads[0][0]/pow(10, 3)),
+        data.append([str(j.loads[0][0]),
                      format((j.loads[1][0]
                              - sum([m.mass/2.0*pp.g for m
-                                    in j.members]))/pow(10, 3), '.2f'),
-                     str(j.loads[2][0]/pow(10, 3))])
+                                    in j.members])), '.2f'),
+                     str(j.loads[2][0])])
 
     pw(f, pd.DataFrame(data,
                            index=rows,
@@ -182,18 +182,18 @@ def print_stress_analysis(f, the_truss, verb=False):
     rows = []
     for j in the_truss.joints:
         rows.append("Joint_"+"{0:02d}".format(j.idx))
-        data.append([format(j.reactions[0][0]/pow(10, 3), '.2f')
+        data.append([format(j.reactions[0][0], '.2f')
                      if j.translation[0][0] != 0.0 else "N/A",
-                     format(j.reactions[1][0]/pow(10, 3), '.2f')
+                     format(j.reactions[1][0], '.2f')
                      if j.translation[1][0] != 0.0 else "N/A",
-                     format(j.reactions[2][0]/pow(10, 3), '.2f')
+                     format(j.reactions[2][0], '.2f')
                      if j.translation[2][0] != 0.0 else "N/A"])
 
     pw(f, pd.DataFrame(data,
                            index=rows,
-                           columns=["X-Reaction(kN)",
-                                    "Y-Reaction(kN)",
-                                    "Z-Reaction(kN)"])
+                           columns=["X-Reaction",
+                                    "Y-Reaction",
+                                    "Z-Reaction"])
         .to_string(justify="left"), v=verb)
 
     # Print information about members
@@ -204,15 +204,15 @@ def print_stress_analysis(f, the_truss, verb=False):
         rows.append("Member_"+"{0:02d}".format(m.idx))
         data.append([m.area,
                      format(m.I, '.2e'),
-                     format(m.force/pow(10, 3), '.2f'),
+                     format(m.force, '.2f'),
                      m.fos_yielding,
                      m.fos_buckling if m.fos_buckling > 0 else "N/A"])
 
     pw(f, pd.DataFrame(data,
                            index=rows,
-                           columns=["Area(m2)",
-                                    "Moment-of-Inertia(m4)",
-                                    "Axial-force(kN)",
+                           columns=["Area",
+                                    "Moment-of-Inertia",
+                                    "Axial-force",
                                     "FOS-yielding",
                                     "FOS-buckling"])
         .to_string(justify="left"), v=verb)
@@ -223,18 +223,18 @@ def print_stress_analysis(f, the_truss, verb=False):
     rows = []
     for j in the_truss.joints:
         rows.append("Joint_"+"{0:02d}".format(j.idx))
-        data.append([format(j.deflections[0][0]*pow(10, 3), '.5f')
+        data.append([format(j.deflections[0][0], '.5f')
                      if j.translation[0][0] == 0.0 else "N/A",
-                     format(j.deflections[1][0]*pow(10, 3), '.5f')
+                     format(j.deflections[1][0], '.5f')
                      if j.translation[1][0] == 0.0 else "N/A",
-                     format(j.deflections[2][0]*pow(10, 3), '.5f')
+                     format(j.deflections[2][0], '.5f')
                      if j.translation[2][0] == 0.0 else "N/A"])
 
     pw(f, pd.DataFrame(data,
                            index=rows,
-                           columns=["X-Defl.(mm)",
-                                    "Y-Defl.(mm)",
-                                    "Z-Defl.(mm)"])
+                           columns=["X-Defl.",
+                                    "Y-Defl.",
+                                    "Z-Defl."])
         .to_string(justify="left"), v=verb)
 
 
@@ -263,26 +263,26 @@ def print_recommendations(f, the_truss, verb=False):
         if m.fos_yielding < tyf:
             pw(f, "\t- Member_"+'{0:02d}'.format(m.idx)+" is yielding. "
                   "Try increasing the cross-sectional area.", v=verb)
-            pw(f, "\t\t- Current area: " + format(m.I, '.2e') + " m^2", v=verb)
+            pw(f, "\t\t- Current area: " + format(m.I, '.2e'), v=verb)
             pw(f, "\t\t- Recommended area: "
                   + format(m.area*the_truss.goals["min_fos_yielding"]
-                           / m.fos_yielding, '.2e') + " m^2", v=verb)
+                           / m.fos_yielding, '.2e'), v=verb)
             pw(f, "\t\t- Try increasing member dimensions by a factor of "
-                  "at least " + format(pow(the_truss.goals["min_fos_yielding"]
-                                           / m.fos_yielding, 0.5), '.3f'), v=verb)
+                  "at least " + format(the_truss.goals["min_fos_yielding"]
+                                           / m.fos_yielding, '.3f'), v=verb)
             made_a_recommendation = True
 
         if 0 < m.fos_buckling < tbf:
             pw(f, "\t- Member_"+'{0:02d}'.format(m.idx)+" is buckling. "
                   "Try increasing the moment of inertia.", v=verb)
             pw(f, "\t\t- Current moment of inertia: "
-                  + format(m.I, '.2e') + " m^4", v=verb)
+                  + format(m.I, '.2e'), v=verb)
             pw(f, "\t\t- Recommended moment of inertia: "
                   + format(m.I*the_truss.goals["min_fos_buckling"]
-                           / m.fos_buckling, '.2e') + " m^4", v=verb)
+                           / m.fos_buckling, '.2e'), v=verb)
             pw(f, "\t\t- Try increasing member dimensions by a factor of "
-                  "at least " + format(pow(the_truss.goals["min_fos_buckling"]
-                                           / m.fos_buckling, 0.25), '.3f')
+                  "at least " + format(the_truss.goals["min_fos_buckling"]
+                                           / m.fos_buckling, '.3f')
                   + ".", v=verb)
             made_a_recommendation = True
 
