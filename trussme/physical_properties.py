@@ -1,5 +1,5 @@
 # Gravitational constant for computing weight from mass
-g = 9.80665
+g = [0, -9806.65, 0]
 
 
 # Material properties

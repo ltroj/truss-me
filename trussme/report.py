@@ -145,10 +145,28 @@ def print_instantiation_information(f, the_truss, verb=False):
             str(pp.materials[mat]["Fy"])])
 
     pw(f, pd.DataFrame(data,
-                           index=rows,
-                           columns=["Density",
-                                    "Elastic Modulus",
-                                    "Yield Strength"])
+                       index=rows,
+                       columns=["Density",
+                                "Elastic Modulus",
+                                "Yield Strength"])
+        .to_string(justify="left"), v=verb)
+
+    # Print physical properties
+    unique_materials = np.unique([m.material for m in the_truss.members])
+    pw(f, "\n--- PHYSICAL PROPERTIES ---", v=verb)
+    data = []
+    rows = []
+    rows.append("Grav. constant g")
+    data.append([
+        str(the_truss.g[0]),
+        str(the_truss.g[1]),
+        str(the_truss.g[2])])
+
+    pw(f, pd.DataFrame(data,
+                       index=rows,
+                       columns=["X-Component",
+                                "Y-Component",
+                                "Z-Component"])
         .to_string(justify="left"), v=verb)
 
 
@@ -164,9 +182,7 @@ def print_stress_analysis(f, the_truss, verb=False):
     for j in the_truss.joints:
         rows.append("Joint_"+"{0:02d}".format(j.idx))
         data.append([str(j.loads[0][0]),
-                     format((j.loads[1][0]
-                             - sum([m.mass/2.0*pp.g for m
-                                    in j.members])), '.2f'),
+                     str(j.loads[1][0]),
                      str(j.loads[2][0])])
 
     pw(f, pd.DataFrame(data,
@@ -174,6 +190,23 @@ def print_stress_analysis(f, the_truss, verb=False):
                            columns=["X-Load",
                                     "Y-Load",
                                     "Z-Load"])
+        .to_string(justify="left"), v=verb)
+
+    # Print information about weights
+    pw(f, "\n--- WEIGHT LOADING ---", v=verb)
+    data = []
+    rows = []
+    for j in the_truss.joints:
+        rows.append("Joint_"+"{0:02d}".format(j.idx))
+        data.append([format(sum([m.mass/2.0*the_truss.g[0] for m in j.members]), '.2f'),
+                     format(sum([m.mass/2.0*the_truss.g[1] for m in j.members]), '.2f'),
+                     format(sum([m.mass/2.0*the_truss.g[2] for m in j.members]), '.2f'),])
+
+    pw(f, pd.DataFrame(data,
+                           index=rows,
+                           columns=["X-Weight",
+                                    "Y-Weight",
+                                    "Z-Weight"])
         .to_string(justify="left"), v=verb)
 
     # Print information about reactions

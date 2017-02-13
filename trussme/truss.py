@@ -17,7 +17,6 @@ from matplotlib.font_manager import FontProperties
 from mpl_toolkits.mplot3d import proj3d
 
 
-
 class Truss(object):
 
     def __init__(self, file_name=""):
@@ -38,6 +37,8 @@ class Truss(object):
         self.fos_total = 0
         self.limit_state = ''
         self.condition = 0
+        # Extract fallback values for g from physical properties:
+        self.g = np.asarray(g)
 
         # Design goals
         self.goals = {"min_fos_total": -1,
@@ -75,6 +76,13 @@ class Truss(object):
                         self.joints[int(info[0])].loads[0] = float(info[1])
                         self.joints[int(info[0])].loads[1] = float(info[2])
                         self.joints[int(info[0])].loads[2] = float(info[3])
+                    elif line[0] == "P":
+                        info = line.split()[1:]
+                        # If g is defined, overwrite fallback values
+                        if info[0] == "g":
+                            self.g = np.array([float(info[1]),
+                                               float(info[2]),
+                                               float(info[3])])
                     elif line[0] != "#" and not line.isspace():
                         raise ValueError("'"+line[0] +
                                          "' is not a valid line beginner.")
@@ -151,10 +159,14 @@ class Truss(object):
             reactions[0, i] = self.joints[i].translation[0]
             reactions[1, i] = self.joints[i].translation[1]
             reactions[2, i] = self.joints[i].translation[2]
-            loads[0, i] = self.joints[i].loads[0]
+            # member weights are distributed to the joints and
+            # added to existing loads
+            loads[0, i] = self.joints[i].loads[0]\
+                + sum([m.mass/2.0*self.g[0] for m in self.joints[i].members])
             loads[1, i] = self.joints[i].loads[1]\
-                - sum([m.mass/2.0*g for m in self.joints[i].members])
-            loads[2, i] = self.joints[i].loads[2]
+                + sum([m.mass/2.0*self.g[1] for m in self.joints[i].members])
+            loads[2, i] = self.joints[i].loads[2]\
+                + sum([m.mass/2.0*self.g[2] for m in self.joints[i].members])
 
         # Pull out E and A
         elastic_modulus = []
@@ -207,8 +219,8 @@ class Truss(object):
             self.limit_state = 'yielding'
 
         if self.condition > pow(10, 5):
-            warnings.warn("The condition number is " + str(self.condition)
-                          + ". Results may be inaccurate.")
+            warnings.warn("The condition number is " + str(self.condition) +
+                          ". Results may be inaccurate.")
 
     def __report(self, file_name="", verb=False):
 
