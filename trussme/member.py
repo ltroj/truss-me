@@ -35,6 +35,7 @@ class Member(object):
         self.fos_yielding = 0
         self.fos_buckling = 0
         self.mass = 0
+        self.stress = 0
 
         # Variable to store location in truss
         self.joints = [joint_a, joint_b]
@@ -98,11 +99,7 @@ class Member(object):
     def set_parameters(self, **kwargs):
         # prop_update = False
         # Save the values
-        print "set para"
-        print kwargs.keys()
         for key in kwargs.keys():
-            print key
-
             if key == "radius":
                 self.r = kwargs["radius"]
             elif key == "r":
@@ -123,7 +120,6 @@ class Member(object):
                 self.area = kwargs["area"]
             elif key == "a":
                 self.area = kwargs["a"]
-                print "a wird abgefragt"
             elif key == "I_min":
                 self.I = kwargs["I_min"]
             # elif kwargs["update_props"]:
@@ -213,6 +209,7 @@ class Member(object):
 
     def set_force(self, the_force):
         self.force = the_force
+        self.stress = self.force/self.area
         self.fos_yielding = self.Fy/abs(self.force/self.area)
         self.fos_buckling = -((np.pi**2)*self.elastic_modulus*self.I
                              /(self.length**2))/self.force

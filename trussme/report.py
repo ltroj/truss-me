@@ -205,6 +205,7 @@ def print_stress_analysis(f, the_truss, verb=False):
         data.append([m.area,
                      format(m.I, '.2e'),
                      format(m.force, '.2f'),
+                     format(m.stress, '.2f'),
                      m.fos_yielding,
                      m.fos_buckling if m.fos_buckling > 0 else "N/A"])
 
@@ -213,6 +214,7 @@ def print_stress_analysis(f, the_truss, verb=False):
                            columns=["Area",
                                     "Moment-of-Inertia",
                                     "Axial-force",
+                                    "Axial-stress",
                                     "FOS-yielding",
                                     "FOS-buckling"])
         .to_string(justify="left"), v=verb)

@@ -69,8 +69,6 @@ class Truss(object):
                             kvpair = info[param].split("=")
                             ks.append(kvpair[0])
                             vs.append(float(kvpair[1]))
-                        print "jetzt"
-                        print dict(zip(ks, vs))
                         self.members[-1].set_parameters(**dict(zip(ks, vs)))
                     elif line[0] == "L":
                         info = line.split()[1:]
