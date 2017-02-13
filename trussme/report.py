@@ -18,37 +18,37 @@ def print_summary(f, the_truss, verb=False):
         success_string = []
         failure_string = []
         for key in the_truss.goals.keys():
-            if key is "min_fos_total" and the_truss.goals[key] is not -1:
+            if key == "min_fos_total" and the_truss.goals[key] != -1:
                 if the_truss.goals[key] < the_truss.fos_total:
                     success_string.append("total FOS")
                 else:
                     failure_string.append("total FOS")
-            elif key is "min_fos_buckling" and the_truss.goals[key] is not -1:
+            elif key == "min_fos_buckling" and the_truss.goals[key] != -1:
                 if the_truss.goals[key] < the_truss.fos_buckling:
                     success_string.append("buckling FOS")
                 else:
                     failure_string.append("buckling FOS")
-            elif key is "min_fos_yielding" and the_truss.goals[key] is not -1:
+            elif key == "min_fos_yielding" and the_truss.goals[key] != -1:
                 if the_truss.goals[key] < the_truss.fos_yielding:
                     success_string.append("yielding FOS")
                 else:
                     failure_string.append("yielding FOS")
-            elif key is "max_mass" and the_truss.goals[key] is not -1:
+            elif key == "max_mass" and the_truss.goals[key] != -1:
                 if the_truss.goals[key] > the_truss.mass:
                     success_string.append("mass")
                 else:
                     failure_string.append("mass")
-            elif key is "max_deflection" and the_truss.goals[key] is not -1:
+            elif key == "max_deflection" and the_truss.goals[key] != -1:
                 if the_truss.goals[key] > the_truss.fos_total:
                     success_string.append("deflection")
                 else:
                     failure_string.append("deflection")
 
-        if len(success_string) is not 0:
-            if len(success_string) is 1:
+        if len(success_string) != 0:
+            if len(success_string) == 1:
                 pw(f, "\t- The design goal for " + str(success_string[0])
                       + " was satisfied.", v=verb)
-            elif len(success_string) is 2:
+            elif len(success_string) == 2:
                 pw(f, "\t- The design goals for "
                       + str(success_string[0])
                       + " and "
@@ -60,11 +60,11 @@ def print_summary(f, the_truss, verb=False):
                     pw(f, st+", ", nl=False, v=verb)
                 pw(f, "and "+str(success_string[-1])+" were satisfied.", v=verb)
 
-        if len(failure_string) is not 0:
-            if len(failure_string) is 1:
+        if len(failure_string) != 0:
+            if len(failure_string) == 1:
                 pw(f, "\t- The design goal for " + str(failure_string[0])
                       + " was not satisfied.", v=verb)
-            elif len(failure_string) is 2:
+            elif len(failure_string) == 2:
                 pw(f, "\t- The design goals for "
                       + str(failure_string[0])
                       + " and "
@@ -244,18 +244,18 @@ def print_recommendations(f, the_truss, verb=False):
     pw(f, "(3) RECOMMENDATIONS", v=verb)
     pw(f, "===============================", v=verb)
 
-    if the_truss.goals["max_mass"] is not -1:
+    if the_truss.goals["max_mass"] != -1:
         tm = the_truss.goals["max_mass"]
     else:
         tm = np.inf
 
     for m in the_truss.members:
-        if the_truss.goals["min_fos_yielding"] is not -1:
+        if the_truss.goals["min_fos_yielding"] != -1:
             tyf = the_truss.goals["min_fos_yielding"]
         else:
             tyf = 1.0
 
-        if the_truss.goals["min_fos_buckling"] is not -1:
+        if the_truss.goals["min_fos_buckling"] != -1:
             tbf = the_truss.goals["min_fos_buckling"]
         else:
             tbf = 1.0
@@ -296,7 +296,7 @@ def print_recommendations(f, the_truss, verb=False):
             made_a_recommendation = True
 
     for j in the_truss.joints:
-        if the_truss.goals["max_deflection"] is not -1:
+        if the_truss.goals["max_deflection"] != -1:
             td = the_truss.goals["max_deflection"]
         else:
             td = np.inf
@@ -313,13 +313,13 @@ def print_recommendations(f, the_truss, verb=False):
 
 
 def pw(f, string, nl=True, v=False):
-    if nl is False:
-        if v is True:
+    if nl == False:
+        if v == True:
             print(string),
-        if f is not "":
+        if f != "":
             f.write(string)
-    elif nl is True:
-        if v is True:
+    elif nl == True:
+        if v == True:
             print(string)
-        if f is not "":
+        if f != "":
             f.write(string+"\n")

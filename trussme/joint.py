@@ -28,7 +28,7 @@ class Joint(object):
     def free(self, d=3):
         self.translation = np.zeros([3, 1])
         # If 2d, add out of plane support
-        if d is 2:
+        if d == 2:
             self.translation[2] = 1
 
     def pinned(self, d=3):
@@ -41,5 +41,5 @@ class Joint(object):
         self.translation[ord(axis)-120] = 1
 
         # If 2d, add out of plane support
-        if d is 2:
+        if d == 2:
             self.translation[2] = 1

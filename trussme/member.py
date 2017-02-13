@@ -6,7 +6,7 @@ from trussme.physical_properties import materials, valid_member_name
 class Member(object):
 
     # Shape types
-    shapes = ["pipe", "bar", "square", "box"]
+    shapes = ["pipe", "bar", "square", "box", "arbitrary"]
 
     def __init__(self, joint_a, joint_b):
         # Save id number
@@ -43,9 +43,9 @@ class Member(object):
         self.end_b = []
 
         # Calculate properties
-        self.set_shape("pipe", update_props=False)
-        self.set_material("A36", update_props=False)
-        self.set_parameters(t=0.002, r=0.02, update_props=True)
+        # self.set_shape("pipe", update_props=False)
+        # self.set_material("A36", update_props=False)
+        # self.set_parameters(t=0.002, r=0.02, update_props=True)
 
     def set_shape(self, new_shape, update_props=True):
         # Read and save hte shape name
@@ -56,17 +56,22 @@ class Member(object):
                              ', '.join(self.shapes[0:-1]) + ', or ' +
                              self.shapes[-1] + '.')
 
-        if self.shape is "pipe":
+        if self.shape == "pipe":
             self.w = "N/A"
             self.h = "N/A"
-        elif self.shape is "bar":
+        elif self.shape == "bar":
             self.w = "N/A"
             self.h = "N/A"
             self.r = "N/A"
-        elif self.shape is "square":
+        elif self.shape == "square":
             self.r = "N/A"
             self.t = "N/A"
-        elif self.shape is "box":
+        elif self.shape == "box":
+            self.r = "N/A"
+        elif self.shape == "arbitrary":
+            self.t = "N/A"
+            self.w = "N/A"
+            self.h = "N/A"
             self.r = "N/A"
 
         # If required, update properties
@@ -91,31 +96,42 @@ class Member(object):
             self.calc_properties()
 
     def set_parameters(self, **kwargs):
-        prop_update = False
+        # prop_update = False
         # Save the values
+        print "set para"
+        print kwargs.keys()
         for key in kwargs.keys():
-            if key is "radius":
+            print key
+
+            if key == "radius":
                 self.r = kwargs["radius"]
-            elif key is "r":
+            elif key == "r":
                 self.r = kwargs["r"]
-            elif key is "thickness":
+            elif key == "thickness":
                 self.t = kwargs["thickness"]
-            elif key is "t":
+            elif key == "t":
                 self.t = kwargs["t"]
-            elif key is "width":
+            elif key == "width":
                 self.w = kwargs["width"]
-            elif key is "w":
+            elif key == "w":
                 self.w = kwargs["w"]
-            elif key is "height":
+            elif key == "height":
                 self.h = kwargs["height"]
-            elif key is "h":
+            elif key == "h":
                 self.h = kwargs["h"]
-            elif kwargs["update_props"]:
-                prop_update = True
+            elif key == "area":
+                self.area = kwargs["area"]
+            elif key == "a":
+                self.area = kwargs["a"]
+                print "a wird abgefragt"
+            elif key == "I_min":
+                self.I = kwargs["I_min"]
+            # elif kwargs["update_props"]:
+            #    prop_update = True
             else:
-                raise ValueError(key+' is not an defined shape. '
+                raise ValueError(key+' is not a defined parameter. '
                                      'Try thickness (t), width (w), '
-                                     'height (h), or radius (r).')
+                                     'height (h), radius (r), area (a) or I_min.')
 
         # Check parameters
         if self.shape == "pipe":
@@ -130,8 +146,16 @@ class Member(object):
                 warnings.warn("Thickness is greater than half of height."
                               "Changing shape to square.")
 
-        if prop_update:
-            self.calc_properties()
+        if self.shape == "arbitrary":
+            if self.area <= 0.0:
+                warnings.warn('Shape type "arbitrary" needs parameter "area (a)" with positive value.')
+            if self.I <= 0.0:
+                warnings.warn('Shape type "arbitrary" needs parameter "I_min" with positive value.')
+
+        # if prop_update:
+        #    self.calc_properties()
+
+        self.calc_properties()
 
     def calc_properties(self):
         # Calculate moment of inertia
@@ -163,6 +187,8 @@ class Member(object):
             else:
                 self.I = (1./12.)*(self.h*self.w**3)\
                     - (1./12.)*(self.h - 2*self.t)*(self.w - 2*self.t)**3
+        elif self.shape == "arbitrary":
+            pass  # I_min is already set by parameter
 
     def calc_area(self):
         if self.shape == "pipe":
@@ -173,6 +199,8 @@ class Member(object):
             self.area = self.w*self.h - (self.h - 2*self.t)*(self.w - 2*self.t)
         elif self.shape == "square":
             self.area = self.w * self.h
+        elif self.shape == "arbitrary":
+            pass  # Area is already set by parameter
 
     def calc_lw(self):
         self.LW = self.area * self.rho
@@ -198,5 +226,4 @@ class Member(object):
             return True
         else:
             return False
-
 

@@ -47,16 +47,16 @@ class Truss(object):
                       "max_deflection": -1}
         self.THERE_ARE_GOALS = False
 
-        if file_name is not "":
+        if file_name != "":
             with open(file_name, 'r') as f:
                 for idx, line in enumerate(f):
-                    if line[0] is "J":
+                    if line[0] == "J":
                         info = line.split()[1:]
                         self.add_joint(np.array(
                             [float(x) for x in info[:3]]))
                         self.joints[-1].translation = np.array(
                             [[int(x)] for x in info[3:]])
-                    elif line[0] is "M":
+                    elif line[0] == "M":
                         info = line.split()[1:]
                         self.add_member(int(info[0]), int(info[1]))
                         self.members[-1].set_material(info[2])
@@ -69,28 +69,30 @@ class Truss(object):
                             kvpair = info[param].split("=")
                             ks.append(kvpair[0])
                             vs.append(float(kvpair[1]))
+                        print "jetzt"
+                        print dict(zip(ks, vs))
                         self.members[-1].set_parameters(**dict(zip(ks, vs)))
-                    elif line[0] is "L":
+                    elif line[0] == "L":
                         info = line.split()[1:]
                         self.joints[int(info[0])].loads[0] = float(info[1])
                         self.joints[int(info[0])].loads[1] = float(info[2])
                         self.joints[int(info[0])].loads[2] = float(info[3])
-                    elif line[0] is not "#" and not line.isspace():
+                    elif line[0] != "#" and not line.isspace():
                         raise ValueError("'"+line[0] +
                                          "' is not a valid line beginner.")
 
     def set_goal(self, **kwargs):
         self.THERE_ARE_GOALS = True
         for key in kwargs:
-            if key is "min_fos_total":
+            if key == "min_fos_total":
                 self.goals["min_fos_total"] = kwargs["min_fos_total"]
-            elif key is "min_fos_yielding":
+            elif key == "min_fos_yielding":
                 self.goals["min_fos_yielding"] = kwargs["min_fos_yielding"]
-            elif key is "min_fos_buckling":
+            elif key == "min_fos_buckling":
                 self.goals["min_fos_buckling"] = kwargs["min_fos_buckling"]
-            elif key is "max_mass":
+            elif key == "max_mass":
                 self.goals["max_mass"] = kwargs["max_mass"]
-            elif key is "max_deflection":
+            elif key == "max_deflection":
                 self.goals["max_deflection"] = kwargs["max_deflection"]
             else:
                 self.THERE_ARE_GOALS = False
@@ -216,7 +218,7 @@ class Truss(object):
         self.calc_mass()
         self.calc_fos()
 
-        if file_name is "":
+        if file_name == "":
             f = ""
         else:
             f = open(file_name, 'w')
@@ -235,7 +237,7 @@ class Truss(object):
             report.print_recommendations(f, self, verb=verb)
 
         # Try to close, and except if
-        if file_name is not "":
+        if file_name != "":
             f.close()
 
     def print_and_save_report(self, file_name):
@@ -248,7 +250,7 @@ class Truss(object):
         self.__report(file_name=file_name, verb=False)
 
     def save_truss(self, file_name=""):
-        if file_name is "":
+        if file_name == "":
             file_name = time.strftime('%X %x %Z')
 
         with open(file_name, "w") as f:
