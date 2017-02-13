@@ -1,0 +1,19 @@
+# This file defines parameters for a truss. All columns are tab delimited.
+# Joints and members can be included in any order, and lines beginning with
+# a "#" symbol are ignored.
+
+# This block defines joints. The order of the columns is
+# J X-coord, Y-coord, Z-coord, X-support, Y-support, Z-support
+J   0.0   0.0   0.0   1   1   1
+J   10.0  0.0   0.0   0   1   1
+J   5.0   10.0  0.0   0   0   1
+
+# This block defines members. The order of the columns is
+# M joint1, joint2, material, shape, {parameters for shape, t=X, etc.}
+M   0   2   zero_mat arbitrary    a=100.0    I_min=3000.0
+M   1   2   zero_mat arbitrary    a=100.0    I_min=3000.0
+M   0   1   zero_mat arbitrary    a=100.0    I_min=3000.0
+
+# This block defines loads. The order of the columns is:
+# L joint, x-load, y-load, z-load
+L   2   0   -1  0
