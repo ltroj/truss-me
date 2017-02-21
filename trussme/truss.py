@@ -7,6 +7,7 @@ from trussme import report
 from trussme import evaluate
 from trussme.physical_properties import g
 import time
+import datetime
 import os
 import warnings
 
@@ -234,7 +235,9 @@ class Truss(object):
             f = open(file_name, 'w')
 
         # Print date and time
-        report.pw(f, time.strftime('%X %x %Z'), v=verb)
+        global timestamp_pr
+        timestamp_pr = '{:%Y-%m-%d %H:%M:%S}'.format(datetime.datetime.now())
+        report.pw(f, timestamp_pr, v=verb)
         report.pw(f, os.getcwd(), v=verb)
 
         report.print_summary(f, self, verb=verb)
@@ -302,9 +305,9 @@ class Truss(object):
             # Do the loads
             f.write(load_string)
 
-    #==========================================================================
+    # =========================================================================
     # Achtung, ab hier auf eigene Faust!
-    #==========================================================================
+    # =========================================================================
 
     def plot(self):
 
@@ -313,13 +316,14 @@ class Truss(object):
         def orthogonal_proj(zfront, zback):
             a = (zfront+zback)/(zfront-zback)
             b = -2*(zfront*zback)/(zfront-zback)
-            return np.array([[1,0,0,0],
-                                [0,1,0,0],
-                                [0,0,a,b],
-                                [0,0,-0.000001,zback]])
+            return np.array([[1, 0, 0, 0],
+                             [0, 1, 0, 0],
+                             [0, 0, a, b],
+                             [0, 0, -0.000001, zback]])
         proj3d.persp_transformation = orthogonal_proj
         # End of patch
 
+        # figure setup
         # figsize uses inches, use A4 size here
         fig = plt.figure(figsize=np.array([297, 210]) / 25.4)
 
@@ -328,7 +332,9 @@ class Truss(object):
                              xlabel='x',
                              ylabel='y',
                              zlabel='z')
-
+        title = 'Truss Computation Plot (%s)' % timestamp_pr
+        fig.canvas.set_window_title(title)
+        fig.suptitle(title)
         ax.view_init(azim=-90, elev=90)
         ax.set_aspect('auto')
         fig.tight_layout()
@@ -369,8 +375,6 @@ class Truss(object):
             y = j.coordinates[1]
             z = j.coordinates[2]
 
-            i_jnt += 1
-
             # Plot supports
             dof = len(j.translation)
             scatter_label = "j" + str(i_jnt)
@@ -405,6 +409,8 @@ class Truss(object):
                            zorder=999,
                            label=name+"\n"+trans_desc)
 
+            i_jnt += 1
+
             ax.text(x,
                     y,
                     z,
@@ -414,8 +420,8 @@ class Truss(object):
                     color='k')
 
             # Plot loads
-            if np.count_nonzero(j.loads):  # If not all elements of the load array are zero
-                i_load += 1
+            # If not all elements of the load array are zero:
+            if np.count_nonzero(j.loads):
                 scatter_label = "l" + str(i_load)
                 name = "load " + str(i_load)
                 load_desc = '/'.join(''.join(str(cell) for cell in row) for row in j.loads)
@@ -436,6 +442,8 @@ class Truss(object):
                         linespacing=label_offs,
                         va='bottom',
                         color=clr)
+
+                i_load += 1
 
         # Plot legend
         fontP = FontProperties()

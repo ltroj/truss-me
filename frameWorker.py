@@ -19,9 +19,10 @@ def import_data():
     return file_path
 
 if __name__ == "__main__":
-    file_path = import_data()
+    # file_path = import_data()
     # file_path = "C:/Users/M20169/truss-me/tests/triangle_truss.trs"
-    
+    file_path = "D:/GitHub/truss-me/tests/one_truss.trs"
+
     # Build truss from file
     t = truss.Truss(file_path)
     t.set_goal(min_fos_buckling=1.5,
@@ -29,12 +30,12 @@ if __name__ == "__main__":
                max_mass=5.0,
                max_deflection=6e-3)
     # Save report
-    
-    # A C H T U N G: Derzeit wird OHNE Report nichts berechnet, entsprechend stimmt auch der Plot nicht
+
+    # A C H T U N G: Derzeit wird OHNE Report nichts berechnet,
+    # entsprechend stimmt auch der Plot nicht
     timestamp = '{:%Y-%m-%d_%H-%M-%S}'.format(datetime.datetime.now())
     base_name = os.path.splitext(os.path.basename(file_path))[0]
     t.print_and_save_report(os.path.join(os.path.dirname(__file__),
                             'report_'+base_name+'_'+timestamp+'.txt'))
     # Plot truss
     t.plot()
-

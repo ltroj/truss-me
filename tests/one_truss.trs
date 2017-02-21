@@ -80,7 +80,7 @@ M	19	21	zero_mat	arbitrary	a=1	I_min=100
 							
 #	This block defines loads. The order of the columns is:						
 #	L joint, x-load, y-load, z-load						
-L	0	-1	0				
+L	22	0	-1	0			
 							
 #	This block defines physical properties (gravitational constant only).						
 #	If no value is defined, the fallback value from physical_properties.py is used.						
