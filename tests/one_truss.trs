@@ -1,0 +1,89 @@
+#	This file defines parameters for a truss. All columns are tab delimited.						
+#	Joints and members can be included in any order, and lines beginning with						
+#	a "#" symbol are ignored.						
+							
+#	This block defines joints. The order of the columns is						
+#	J X-coord, Y-coord, Z-coord, X-support, Y-support, Z-support						
+#	Es ist folgende Nummerierung zu beachten:						
+#	Knoten UG = gerade						
+#	Knoten OG = ungerade						
+#	Knoten 0 = Untergurt hinten						
+J	0	0	0		0	1	1
+J	1	1	0		0	0	1
+J	2	0	0		0	0	1
+J	3	1	0		0	0	1
+J	4	0	0		0	0	1
+J	5	1	0		0	0	1
+J	6	0	0		0	0	1
+J	7	1	0		0	0	1
+J	8	0	0		1	1	1
+J	9	1	0		0	0	1
+J	10	0	0		0	0	1
+J	11	1	0		0	0	1
+J	12	0	0		0	0	1
+J	13	1	0		0	0	1
+J	14	0	0		0	0	1
+J	15	1	0		0	0	1
+J	16	0	0		0	0	1
+J	17	1	0		0	0	1
+J	18	0	0		0	0	1
+J	19	1	0		0	0	1
+J	20	0	0		0	0	1
+J	21	1	0		0	0	1
+J	22	0	0		0	0	1
+							
+#	This block defines members. The order of the columns is						
+#	M joint1, joint2, material, shape, {parameters for shape, t=X, etc.}						
+M	0	1	zero_mat	arbitrary	a=1	I_min=100	
+M	1	2	zero_mat	arbitrary	a=1	I_min=100	
+M	2	3	zero_mat	arbitrary	a=1	I_min=100	
+M	3	4	zero_mat	arbitrary	a=1	I_min=100	
+M	4	5	zero_mat	arbitrary	a=1	I_min=100	
+M	5	6	zero_mat	arbitrary	a=1	I_min=100	
+M	6	7	zero_mat	arbitrary	a=1	I_min=100	
+M	7	8	zero_mat	arbitrary	a=1	I_min=100	
+M	8	9	zero_mat	arbitrary	a=1	I_min=100	
+M	9	10	zero_mat	arbitrary	a=1	I_min=100	
+M	10	11	zero_mat	arbitrary	a=1	I_min=100	
+M	11	12	zero_mat	arbitrary	a=1	I_min=100	
+M	12	13	zero_mat	arbitrary	a=1	I_min=100	
+M	13	14	zero_mat	arbitrary	a=1	I_min=100	
+M	14	15	zero_mat	arbitrary	a=1	I_min=100	
+M	15	16	zero_mat	arbitrary	a=1	I_min=100	
+M	16	17	zero_mat	arbitrary	a=1	I_min=100	
+M	17	18	zero_mat	arbitrary	a=1	I_min=100	
+M	18	19	zero_mat	arbitrary	a=1	I_min=100	
+M	19	20	zero_mat	arbitrary	a=1	I_min=100	
+M	20	21	zero_mat	arbitrary	a=1	I_min=100	
+M	21	22	zero_mat	arbitrary	a=1	I_min=100	
+M	0	2	zero_mat	arbitrary	a=1	I_min=100	
+M	2	4	zero_mat	arbitrary	a=1	I_min=100	
+M	4	6	zero_mat	arbitrary	a=1	I_min=100	
+M	6	8	zero_mat	arbitrary	a=1	I_min=100	
+M	8	10	zero_mat	arbitrary	a=1	I_min=100	
+M	10	12	zero_mat	arbitrary	a=1	I_min=100	
+M	12	14	zero_mat	arbitrary	a=1	I_min=100	
+M	14	16	zero_mat	arbitrary	a=1	I_min=100	
+M	16	18	zero_mat	arbitrary	a=1	I_min=100	
+M	18	20	zero_mat	arbitrary	a=1	I_min=100	
+M	20	22	zero_mat	arbitrary	a=1	I_min=100	
+M	1	3	zero_mat	arbitrary	a=1	I_min=100	
+M	3	5	zero_mat	arbitrary	a=1	I_min=100	
+M	5	7	zero_mat	arbitrary	a=1	I_min=100	
+M	7	9	zero_mat	arbitrary	a=1	I_min=100	
+M	9	11	zero_mat	arbitrary	a=1	I_min=100	
+M	11	13	zero_mat	arbitrary	a=1	I_min=100	
+M	13	15	zero_mat	arbitrary	a=1	I_min=100	
+M	15	17	zero_mat	arbitrary	a=1	I_min=100	
+M	17	19	zero_mat	arbitrary	a=1	I_min=100	
+M	19	21	zero_mat	arbitrary	a=1	I_min=100	
+							
+#	This block defines loads. The order of the columns is:						
+#	L joint, x-load, y-load, z-load						
+L	0	-1	0				
+							
+#	This block defines physical properties (gravitational constant only).						
+#	If no value is defined, the fallback value from physical_properties.py is used.						
+#	The order of the columns is						
+#	P g (gravitational const.) X-component Y-component Z-component						
+P	g	0	0	0			
