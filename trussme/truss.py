@@ -342,10 +342,10 @@ class Truss(object):
         # Plot members
         for m in self.members:
 
-            fos = min(m.fos_buckling, m.fos_yielding)
-
-            if fos > 1:
-                clr = 'g'
+            if (m.fos_buckling < 0.0 or \
+                m.fos_buckling > self.goals["min_fos_buckling"]) and \
+               m.fos_yielding > self.goals["min_fos_yielding"]:
+                   clr = 'g'
             else:
                 clr = 'r'
             if m.force > 0:

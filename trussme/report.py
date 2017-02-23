@@ -8,7 +8,7 @@ def print_summary(f, the_truss, verb=False):
     pw(f, "(0) SUMMARY OF ANALYSIS", v=verb)
     pw(f, "=============================", v=verb)
     pw(f, "\t- The truss has a mass of "
-          + format(the_truss.mass, '.2f')
+          + format(the_truss.mass, '.4f')
           + " and a total factor of safety of "
           + format(the_truss.fos_total, '.2f')
           + ". ", v=verb)
@@ -298,7 +298,7 @@ def print_recommendations(f, the_truss, verb=False):
         if m.fos_yielding < tyf:
             pw(f, "\t- Member_"+'{0:02d}'.format(m.idx)+" is yielding. "
                   "Try increasing the cross-sectional area.", v=verb)
-            pw(f, "\t\t- Current area: " + format(m.I, '.2e'), v=verb)
+            pw(f, "\t\t- Current area: " + format(m.area, '.2e'), v=verb)
             pw(f, "\t\t- Recommended area: "
                   + format(m.area*the_truss.goals["min_fos_yielding"]
                            / m.fos_yielding, '.2e'), v=verb)
