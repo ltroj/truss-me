@@ -44,9 +44,9 @@ class Member(object):
         self.end_b = []
 
         # Calculate properties
-        # self.set_shape("pipe", update_props=False)
-        # self.set_material("A36", update_props=False)
-        # self.set_parameters(t=0.002, r=0.02, update_props=True)
+        self.set_shape("pipe", update_props=False)
+        self.set_material("A36", update_props=False)
+        self.set_parameters(t=0.002, r=0.02, update_props=True)
 
     def set_shape(self, new_shape, update_props=True):
         # Read and save hte shape name
@@ -122,8 +122,8 @@ class Member(object):
                 self.area = kwargs["a"]
             elif key == "I_min":
                 self.I = kwargs["I_min"]
-            # elif kwargs["update_props"]:
-            #    prop_update = True
+            elif kwargs["update_props"]:
+                prop_update = True
             else:
                 raise ValueError(key+' is not a defined parameter. '
                                      'Try thickness (t), width (w), '

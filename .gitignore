@@ -6,3 +6,5 @@ tests/asdf.trs
 frameWorker.py
 report_T_E_S_T.txt
 *.pyc
+tests/test_truss.py
+trussme/truss.py
