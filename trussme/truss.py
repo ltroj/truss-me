@@ -116,6 +116,13 @@ class Truss(object):
         self.joints[-1].idx = self.number_of_joints
         self.number_of_joints += 1
 
+    def add_roller(self, coordinates, axis, d=3):
+        # Make the joint
+        self.joints.append(joint.Joint(coordinates))
+        self.joints[self.number_of_joints].roller(axis=axis, d=d)
+        self.joints[-1].idx = self.number_of_joints
+        self.number_of_joints += 1
+
     def add_joint(self, coordinates, d=3):
         # Make the joint
         self.joints.append(joint.Joint(coordinates))
