@@ -8,3 +8,4 @@ report_T_E_S_T.txt
 *.pyc
 tests/test_truss.py
 trussme/truss.py
+tests/test_truss.py
