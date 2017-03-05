@@ -1,9 +1,10 @@
 import numpy as np
 
+
 def the_forces(truss_info):
     tj = np.zeros([3, np.size(truss_info["connections"], axis=1)])
     w = np.array([np.size(truss_info["reactions"], axis=0),
-                     np.size(truss_info["reactions"], axis=1)])
+                  np.size(truss_info["reactions"], axis=1)])
     dof = np.zeros([3*w[1], 3*w[1]])
     deflections = np.ones(w)
     deflections -= truss_info["reactions"]
@@ -22,8 +23,8 @@ def the_forces(truss_info):
         ea_over_l = truss_info["elastic_modulus"][i]*truss_info["area"][i]\
             / length
         ss = ea_over_l*np.concatenate((np.concatenate((d2, -d2), axis=1),
-                                          np.concatenate((-d2, d2), axis=1)),
-                                         axis=0)
+                                       np.concatenate((-d2, d2), axis=1)),
+                                       axis=0)
         tj[:, i] = ea_over_l*direction
         e = list(range((3*ends[0]), (3*ends[0] + 3))) \
             + list(range((3*ends[1]), (3*ends[1] + 3)))
@@ -43,14 +44,18 @@ def the_forces(truss_info):
     for i in range(len(ff[0])):
         deflections[ff[1][i], ff[0][i]] = flat_deflections[i]
     forces = np.sum(np.multiply(
-        tj, deflections[:, truss_info["connections"][1, :]]
-        - deflections[:, truss_info["connections"][0, :]]), axis=0)
+        tj, deflections[:, truss_info["connections"][1, :]] -
+        deflections[:, truss_info["connections"][0, :]]), axis=0)
 
     # Check the condition number, and warn the user if it is out of range
     cond = np.linalg.cond(SSff)
 
     # Compute the reactions
+    # Important bugfix added: R=KU-F, this means nodal loads must be subtracted
+    # from reactions. This bug already exists at the original matlab script.
+    # Please see comment from Chris Jobes at
+    # https://de.mathworks.com/matlabcentral/fileexchange/14313-truss-analysis
     reactions = np.sum(dof*deflections.T.flat[:], axis=1)\
-        .reshape([w[1], w[0]]).T
+        .reshape([w[1], w[0]]).T - truss_info["loads"]
 
     return forces, deflections, reactions, cond
