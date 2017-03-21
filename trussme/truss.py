@@ -10,6 +10,8 @@ import time
 import datetime
 import os
 import warnings
+# import random
+import itertools
 
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
@@ -339,6 +341,7 @@ class Truss(object):
                              xlabel='x',
                              ylabel='y',
                              zlabel='z')
+
         title = 'Truss Computation Plot (%s)' % timestamp_pr
         fig.canvas.set_window_title(title)
         fig.suptitle(title)
@@ -346,8 +349,31 @@ class Truss(object):
         ax.set_aspect('auto')
         fig.tight_layout()
 
+        # color setup
+        # Scale the RGB values to the [0, 1] range, which is the format
+        # matplotlib accepts.
+        def rgb(r, g, b):
+            return (r / 255., g / 255., b / 255.)
+
+        colors = {'midnight blue': rgb(44, 62, 80),
+                  'pomegranate': rgb(192, 57, 43),
+                  'green sea': rgb(22, 160, 133),
+                  'grey 900': rgb(33, 33, 33),
+                  'smoky black': rgb(15, 10, 10),
+                  'dark slate gray': rgb(34, 85, 96),
+                  'fulvous': rgb(220, 130, 1),
+                  'alabama crimson': rgb(177, 15, 46),
+                  'charcoal': rgb(54, 65, 86)}
+
+        # Define offset for scatter labels
+        dx = 5.0 / 25.4  # 5mm
+        dy = 0.0 / 25.4
+        dz = 0.0 / 25.4
+
         # Plot members
         for m in self.members:
+
+            scatter_label = "M" + str(m.idx)
 
             if (m.fos_buckling < 0.0 or \
                 m.fos_buckling > self.goals["min_fos_buckling"]) and \
@@ -363,76 +389,99 @@ class Truss(object):
             ax.plot(xs=[m.end_a[0], m.end_b[0]],
                     ys=[m.end_a[1], m.end_b[1]],
                     zs=[m.end_a[2], m.end_b[2]],
-                    zdir='z',
                     color=clr,
-                    linewidth=2,  # To Do: Abhängig von Anzahl machen
+                    linewidth=1.5,
                     linestyle=lst)
 
             plt.axis('equal')
 
-        x_range = abs(ax.get_xlim()[1]-ax.get_xlim()[0])
-        y_range = abs(ax.get_ylim()[1]-ax.get_ylim()[0])
-        label_offs = y_range*0.05
-
         # Plot joints
+        clr_0 = colors['midnight blue']
+        clr_1 = colors['dark slate gray']
+        clr_2 = colors['alabama crimson']
+        clr_3 = colors['fulvous']
+        clr_ld = colors['pomegranate']
+
         i_load = 0
-        i_jnt = 0
+
         for j in self.joints:
             x = j.coordinates[0]
             y = j.coordinates[1]
             z = j.coordinates[2]
 
             # Plot supports
-            dof = len(j.translation)
-            scatter_label = "j" + str(i_jnt)
-            name = "joint " + str(i_jnt)
-            trans_desc = ' '.join(''.join(str(cell) for cell in row) for row in j.translation)
+            scatter_label = "J" + str(j.idx)
+            name = "Joint " + scatter_label
+
+            l = []
+            for val, dof in zip(j.translation, ['x', 'y', 'z']):
+                if val == [1]:
+                    l.append(dof)
+            desc = 'restricted (' + ', '.join(l) + ')'
+
             if np.count_nonzero(j.translation) == 0:  # Free joint
+                desc = 'unrestricted'
+                clr = clr_0
                 ax.scatter(xs=x,
                            ys=y,
                            zs=z,
                            zdir='z',
-                           color='k',
+                           color=clr,
                            marker='o',
-                           zorder=999)
+                           facecolors='w',
+                           edgecolors=clr,
+                           zorder=999,
+                           label=name+"\n"+desc)
 
-            elif np.count_nonzero(j.translation) == dof:  # Full support
+            elif np.count_nonzero(j.translation) == 1:  # 1 restriction
+                clr = clr_1
                 ax.scatter(xs=x,
                            ys=y,
                            zs=z,
                            zdir='z',
-                           color='k',
-                           marker='s',
-                           zorder=99,
-                           label=name+"\n"+trans_desc)
+                           color=clr,
+                           marker='o',
+                           zorder=999,
+                           label=name+"\n"+desc)
 
-            else:  # Partial support
+            elif np.count_nonzero(j.translation) == 2:  # 2 restrictions
+                clr = clr_2
                 ax.scatter(xs=x,
                            ys=y,
                            zs=z,
                            zdir='z',
-                           color='k',
+                           color=clr,
                            marker='^',
                            zorder=999,
-                           label=name+"\n"+trans_desc)
+                           label=name+"\n"+desc)
 
-            i_jnt += 1
+            elif np.count_nonzero(j.translation) == 3:  # Full support
+                clr = clr_3
+                ax.scatter(xs=x,
+                           ys=y,
+                           zs=z,
+                           zdir='z',
+                           color=clr,
+                           marker='s',
+                           zorder=999,
+                           label=name+"\n"+desc)
 
-            ax.text(x,
-                    y,
-                    z,
-                    '%s' % ('\n'+scatter_label+'\n'),
-                    linespacing=label_offs,
+            ax.text(x+dx,
+                    y+dy,
+                    z+dz,
+                    '%s' % (scatter_label),
                     va='top',
-                    color='k')
+                    color=clr,
+                    size='small')
 
             # Plot loads
             # If not all elements of the load array are zero:
             if np.count_nonzero(j.loads):
-                scatter_label = "l" + str(i_load)
-                name = "load " + str(i_load)
-                load_desc = '/'.join(''.join(str(cell) for cell in row) for row in j.loads)
-                clr = np.random.rand(3,)
+                scatter_label = "L" + str(i_load)
+                name = "Load " + scatter_label
+                load_desc = '(' +', '.join(''.join(str(cell) for cell in row) for row in j.loads) + ')'
+                # clr = np.random.rand(3,)
+                clr = clr_ld
                 ax.scatter(xs=x,
                            ys=y,
                            zs=z,
@@ -442,13 +491,13 @@ class Truss(object):
                            zorder=999,
                            label=name+"\n"+load_desc)
 
-                ax.text(x,
-                        y,
-                        z,
-                        '%s' % ('\n'+scatter_label+'\n'),
-                        linespacing=label_offs,
+                ax.text(x+dx,
+                        y+dy,
+                        z+dz,
+                        '%s' % (scatter_label),
                         va='bottom',
-                        color=clr)
+                        color=clr,
+                        size='small')
 
                 i_load += 1
 
