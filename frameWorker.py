@@ -19,9 +19,7 @@ def import_data():
     return file_path
 
 if __name__ == "__main__":
-    # file_path = import_data()
-    # file_path = "C:/Users/M20169/truss-me/tests/triangle_truss.trs"
-    file_path = "D:/GitHub/truss-me/tests/one_truss.trs"
+    file_path = import_data()
 
     # Build truss from file
     t = truss.Truss(file_path)

@@ -508,3 +508,5 @@ class Truss(object):
         ax.legend(loc='best',
                   ncol=3,
                   prop=fontP)
+
+        plt.show(block=True)
