@@ -36,4 +36,4 @@ if __name__ == "__main__":
     t.print_and_save_report(os.path.join(os.path.dirname(__file__),
                             'report_'+base_name+'_'+timestamp+'.txt'))
     # Plot truss
-    t.plot()
+    t.plot(mlbl=True, jlbl=True, ldlbl=True, legend=True)
