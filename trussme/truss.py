@@ -318,7 +318,7 @@ class Truss(object):
     # Achtung, ab hier auf eigene Faust!
     # =========================================================================
 
-    def plot(self):
+    def plot(self, mlbl=False, jlbl=False, ldlbl=False, legend=False):
 
         # The following is a patch for mplot3d to enable orthogonal projection
         # http://stackoverflow.com/questions/23840756/how-to-disable-perspective-in-mplot3d
@@ -342,12 +342,12 @@ class Truss(object):
                              ylabel='y',
                              zlabel='z')
 
+        fig.tight_layout()
         title = 'Truss Computation Plot (%s)' % timestamp_pr
         fig.canvas.set_window_title(title)
         fig.suptitle(title)
         ax.view_init(azim=-90, elev=90)
         ax.set_aspect('auto')
-        fig.tight_layout()
 
         # color setup
         # Scale the RGB values to the [0, 1] range, which is the format
@@ -377,7 +377,7 @@ class Truss(object):
 
             if (m.fos_buckling < 0.0 or \
                 m.fos_buckling > self.goals["min_fos_buckling"]) and \
-               m.fos_yielding > self.goals["min_fos_yielding"]:
+                m.fos_yielding > self.goals["min_fos_yielding"]:
                    clr = 'g'
             else:
                 clr = 'r'
@@ -392,6 +392,19 @@ class Truss(object):
                     color=clr,
                     linewidth=1.5,
                     linestyle=lst)
+
+            if mlbl:
+                x = (m.end_b[0]+m.end_a[0])*0.5
+                y = (m.end_b[1]+m.end_a[1])*0.5
+                z = (m.end_b[2]+m.end_a[2])*0.5
+
+                ax.text(x,
+                        y,
+                        z,
+                        (scatter_label),
+                        va='top',
+                        color=clr,
+                        size='small')
 
             plt.axis('equal')
 
@@ -466,13 +479,14 @@ class Truss(object):
                            zorder=999,
                            label=name+"\n"+desc)
 
-            ax.text(x+dx,
-                    y+dy,
-                    z+dz,
-                    '%s' % (scatter_label),
-                    va='top',
-                    color=clr,
-                    size='small')
+            if jlbl:
+                ax.text(x+dx,
+                        y+dy,
+                        z+dz,
+                        '%s' % (scatter_label),
+                        va='top',
+                        color=clr,
+                        size='small')
 
             # Plot loads
             # If not all elements of the load array are zero:
@@ -491,22 +505,24 @@ class Truss(object):
                            zorder=999,
                            label=name+"\n"+load_desc)
 
-                ax.text(x+dx,
-                        y+dy,
-                        z+dz,
-                        '%s' % (scatter_label),
-                        va='bottom',
-                        color=clr,
-                        size='small')
+                if ldlbl:
+                    ax.text(x+dx,
+                            y+dy,
+                            z+dz,
+                            '%s' % (scatter_label),
+                            va='bottom',
+                            color=clr,
+                            size='small')
 
                 i_load += 1
 
-        # Plot legend
-        fontP = FontProperties()
-        fontP.set_size('small')
+        if legend:
+            # Plot legend
+            fontP = FontProperties()
+            fontP.set_size('small')
 
-        ax.legend(loc='best',
-                  ncol=3,
-                  prop=fontP)
+            ax.legend(loc='best',
+                      ncol=3,
+                      prop=fontP)
 
         plt.show(block=True)
